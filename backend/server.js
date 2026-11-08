@@ -47,7 +47,6 @@ app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
 app.use(express.json({ limit: "1mb" }));
 
-connectDB();
 
 // Routes
 app.get("/api/health", (req, res) => {
@@ -70,7 +69,6 @@ connectDB().then(() => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 });
-console.log("API KEY:", process.env.GROQ_API_KEY);
-console.log("MODEL:", process.env.AI_MODEL);
+
 
 export default app;

@@ -17,3 +17,14 @@ npm-debug.log*
 
 # OS / editor cruft
 .DS_Store
+Thumbs.db
+
+# Agent task artifacts (internal workflow files)
+.agents/
+
+# Frontend build output (nested path)
+frontend/ai-habit-tracker/dist/
+frontend/ai-habit-tracker/node_modules/
+
+# Backend node_modules (nested path — belt and braces)
+backend/node_modules/

@@ -19,8 +19,11 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Agent task artifacts (internal workflow files)
+# Agent task artifacts (internal workflow files — never commit)
 .agents/
+
+# Deployment docs (local reference only)
+DEPLOY.md
 
 # Frontend build output (nested path)
 frontend/ai-habit-tracker/dist/

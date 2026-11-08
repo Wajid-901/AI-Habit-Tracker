@@ -27,6 +27,7 @@ export default function NotificationPermission() {
     else if (res.reason === "no-vapid-key") setStatus("unavailable");
     else if (res.reason === "unsupported") setStatus("unsupported");
     else if (res.reason === "sw-timeout") setStatus("sw-timeout");
+    else if (res.reason === "vapid-mismatch") setStatus("vapid-mismatch");
     else setStatus("error");
   };
 
@@ -62,6 +63,11 @@ export default function NotificationPermission() {
       {status === "sw-timeout" && (
         <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
           Could not reach the notification service. Please refresh and try again.
+        </p>
+      )}
+      {status === "vapid-mismatch" && (
+        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+          Your previous subscription is outdated. Please refresh the page and try again.
         </p>
       )}
 

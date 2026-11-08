@@ -79,6 +79,8 @@ export default function usePushNotifications() {
       }
 
       // Reuse an existing subscription if present (idempotent — backend upserts).
+      // If one exists but was created with a different VAPID key it will throw a
+      // DOMException when we try to use it — unsubscribe it and re-subscribe.
       let sub = await reg.pushManager.getSubscription();
       if (!sub) {
         try {
@@ -91,7 +93,25 @@ export default function usePushNotifications() {
           );
         } catch (err) {
           if (err?.message === "timeout") return { ok: false, reason: "sw-timeout" };
-          return { ok: false, reason: "network", error: err };
+          // DOMException: likely a stale subscription with a mismatched VAPID key.
+          // Unsubscribe and retry once.
+          if (err?.name === "DOMException" || err instanceof DOMException) {
+            try {
+              const staleSub = await reg.pushManager.getSubscription();
+              if (staleSub) await staleSub.unsubscribe();
+              sub = await withTimeout(
+                reg.pushManager.subscribe({
+                  userVisibleOnly: true,
+                  applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+                }),
+                10_000
+              );
+            } catch {
+              return { ok: false, reason: "vapid-mismatch" };
+            }
+          } else {
+            return { ok: false, reason: "network", error: err };
+          }
         }
       }
 

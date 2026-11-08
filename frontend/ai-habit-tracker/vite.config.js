@@ -12,7 +12,7 @@ export default defineConfig({
       srcDir: "src",
       filename: "sw.js",
       registerType: "autoUpdate",
-      injectRegister: "auto",
+      injectRegister: "script",
       injectManifest: {
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
       },
@@ -27,13 +27,14 @@ export default defineConfig({
         start_url: "/",
         scope: "/",
         display: "standalone",
-        theme_color: "#6366F1",
-        background_color: "#ffffff",
+        theme_color: "#f59e0b",
+        background_color: "#1c1408",
         icons: [
           {
             src: "pwa-64x64.png",
             sizes: "64x64",
             type: "image/png",
+            purpose: "any",
           },
           {
             src: "pwa-192x192.png",
@@ -50,6 +51,14 @@ export default defineConfig({
           {
             src: "maskable-icon-512x512.png",
             sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
+          },
+          {
+            // Android requires a maskable icon at 192px for the install prompt.
+            // Reusing the 512 maskable — browsers scale it down fine.
+            src: "maskable-icon-512x512.png",
+            sizes: "192x192",
             type: "image/png",
             purpose: "maskable",
           },

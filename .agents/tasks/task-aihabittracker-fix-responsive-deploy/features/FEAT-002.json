@@ -1,0 +1,38 @@
+{
+  "id": "FEAT-002",
+  "type": "fix",
+  "description": "Full responsive UI pass — ZERO feature, logic, API, or variable changes. Tailwind responsive prefixes only. Targets 360px phone, 768px tablet, 1024px laptop, 1440px desktop. Fixes: (1) Dashboard hero grid missing base grid-cols-1, (2) Stats page two grids missing base grid-cols-1, (3) Insights page two grids missing base grid-cols-1, (4) Landing page hero grid missing base grid-cols-1, (5) CategoryPieChart/WeeklyBarChart/MonthlyBarChart missing min-w-0 on card container causing Recharts ResponsiveContainer width mis-reports. No changes needed for: AppLayout, Sidebar, MobileNav, Login, Register, Weekly, OrbitingHabits, MorningMotivation, StreakRecoveryCard, ProgressRing, Modal, WeeklyGrid, HabitForm, HabitSuggestionModal, AIWeeklyReport, HabitStatsCard, TodayHabitCard, SummaryCards — these are already responsive or have acceptable layout. Independent of FEAT-001 and FEAT-003.",
+  "status": "completed",
+  "steps": [
+    "Step 1 — Read Dashboard.jsx at C:\\Users\\abdul\\Desktop\\AIHABITTRACKER\\frontend\\ai-habit-tracker\\src\\pages\\Dashboard.jsx. Find the grid section containing WeeklyGrid and HeatmapChart (near the bottom of the return, after AIWeeklyReport). Change: 'className=\"grid lg:grid-cols-12 gap-5\"' to 'className=\"grid grid-cols-1 lg:grid-cols-12 gap-5\"'. Change the WeeklyGrid wrapper: 'className=\"col-span-8\"' to 'className=\"lg:col-span-8\"'. Change the HeatmapChart wrapper: 'className=\"col-span-4\"' to 'className=\"lg:col-span-4\"'. No other changes to Dashboard.jsx.",
+
+    "Step 2 — Read Stats.jsx at C:\\Users\\abdul\\Desktop\\AIHABITTRACKER\\frontend\\ai-habit-tracker\\src\\pages\\Stats.jsx. Find the grid containing WeeklyBarChart and MonthlyBarChart: 'className=\"grid lg:grid-cols-2 gap-5\"'. Change to 'className=\"grid grid-cols-1 lg:grid-cols-2 gap-5\"'. Find the grid containing CategoryPieChart and the top-habits card: 'className=\"grid lg:grid-cols-[1fr_1fr] gap-5\"'. Change to 'className=\"grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-5\"'. No other changes to Stats.jsx.",
+
+    "Step 3 — Read Insights.jsx at C:\\Users\\abdul\\Desktop\\AIHABITTRACKER\\frontend\\ai-habit-tracker\\src\\pages\\Insights.jsx. Find charts row 1 grid (containing 'Completions by day' and 'This week vs last week' cards): 'className=\"grid lg:grid-cols-2 gap-5\"'. Change to 'className=\"grid grid-cols-1 lg:grid-cols-2 gap-5\"'. Find charts row 2 grid (containing 'By category' pie and 'Habit performance'): 'className=\"grid lg:grid-cols-[1fr_1.4fr] gap-5\"'. Change to 'className=\"grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-5\"'. No other changes to Insights.jsx.",
+
+    "Step 4 — Read Landing.jsx at C:\\Users\\abdul\\Desktop\\AIHABITTRACKER\\frontend\\ai-habit-tracker\\src\\pages\\Landing.jsx. Find the hero section grid: 'className=\"grid lg:grid-cols-12 gap-10 lg:gap-6 items-center\"'. Change to 'className=\"grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center\"'. The children already have 'lg:col-span-8' and 'lg:col-span-4' prefixes — confirm they are correctly prefixed (they should be: the existing code reads 'lg:col-span-8' and 'lg:col-span-4') and leave them as-is. No other changes to Landing.jsx.",
+
+    "Step 5 — Read CategoryPieChart.jsx at C:\\Users\\abdul\\Desktop\\AIHABITTRACKER\\frontend\\ai-habit-tracker\\src\\components\\CategoryPieChart.jsx. Change the outer wrapper div: 'className=\"card p-5\"' to 'className=\"card p-5 min-w-0\"'. No other changes.",
+
+    "Step 6 — Read WeeklyBarChart.jsx at C:\\Users\\abdul\\Desktop\\AIHABITTRACKER\\frontend\\ai-habit-tracker\\src\\components\\WeeklyBarChart.jsx. Change the outer wrapper div: 'className=\"card p-5\"' to 'className=\"card p-5 min-w-0\"'. No other changes.",
+
+    "Step 7 — Read MonthlyBarChart.jsx at C:\\Users\\abdul\\Desktop\\AIHABITTRACKER\\frontend\\ai-habit-tracker\\src\\components\\MonthlyBarChart.jsx. Change the outer wrapper div: 'className=\"card p-5\"' to 'className=\"card p-5 min-w-0\"'. No other changes."
+  ],
+  "acceptance_criteria": [
+    "Dashboard.jsx grid section has 'grid grid-cols-1 lg:grid-cols-12' and children use 'lg:col-span-8' / 'lg:col-span-4'",
+    "Stats.jsx has 'grid grid-cols-1 lg:grid-cols-2' and 'grid grid-cols-1 lg:grid-cols-[1fr_1fr]'",
+    "Insights.jsx has 'grid grid-cols-1 lg:grid-cols-2' and 'grid grid-cols-1 lg:grid-cols-[1fr_1.4fr]'",
+    "Landing.jsx hero has 'grid grid-cols-1 lg:grid-cols-12'",
+    "CategoryPieChart, WeeklyBarChart, MonthlyBarChart card wrappers all have min-w-0 class",
+    "No logic, API, variable name, or feature changes of any kind",
+    "npm run build completes with exit code 0"
+  ],
+  "verification": [
+    "cd C:\\Users\\abdul\\Desktop\\AIHABITTRACKER\\frontend\\ai-habit-tracker && npm run build",
+    "Confirm exit code 0",
+    "Confirm dist/sw.js exists",
+    "Confirm dist/manifest.webmanifest exists"
+  ],
+  "blocked_reason": null,
+  "findings": "All 7 steps applied cleanly. Build exit code 0. dist/sw.js and dist/manifest.webmanifest confirmed present. Landing.jsx children were already using lg:col-span-8 / lg:col-span-4 prefixes — no additional changes needed there."
+}

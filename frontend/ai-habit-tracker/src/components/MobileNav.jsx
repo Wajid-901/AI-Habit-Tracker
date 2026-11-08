@@ -5,11 +5,11 @@ import {
   CalendarDays,
   Brain,
   BarChart3,
-  Sparkles,
   LogOut,
   Sun,
   Moon,
 } from "lucide-react";
+import Logo from "./Logo.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
 
@@ -20,9 +20,7 @@ export default function MobileNav() {
     <>
       <div className="md:hidden sticky top-0 z-20 glass border-b divider px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center shadow-md shadow-brand-500/30">
-            <Sparkles size={16} />
-          </div>
+          <Logo size={32} />
           <div className="font-semibold">AI Habit Tracker</div>
         </div>
         <div className="flex items-center gap-2">

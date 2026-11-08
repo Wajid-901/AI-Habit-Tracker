@@ -7,10 +7,10 @@ import {
   BarChart3,
   LogOut,
   Settings,
-  Sparkles,
   Sun,
   Moon,
 } from "lucide-react";
+import Logo from "./Logo.jsx";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
@@ -50,11 +50,8 @@ export default function Sidebar() {
   return (
     <aside className="hidden md:flex md:flex-col w-64 fixed inset-y-0 left-0 z-30 glass border-r">
       <div className="px-6 py-5 border-b divider">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center shadow-lg shadow-brand-500/30">
-            <Sparkles size={18} />
-          </div>
-          <div className="font-semibold text-lg tracking-tight">AI Habit Tracker</div>
+        <div className="flex items-center gap-2.5">
+          <Logo size={36} withText />
         </div>
       </div>
 

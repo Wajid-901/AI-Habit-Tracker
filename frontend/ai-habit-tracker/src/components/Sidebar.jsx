@@ -14,8 +14,7 @@ import Logo from "./Logo.jsx";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
-import Modal from "./Modal.jsx";
-import api from "../api/axios.js";
+import SettingsModal from "./SettingsModal.jsx";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -29,23 +28,6 @@ export default function Sidebar() {
   const { user, logout, updateUser } = useAuth();
   const { theme, toggle } = useTheme();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [morning, setMorning] = useState(user?.morningMotivation || false);
-  const [name, setName] = useState(user?.name || "");
-  const [saving, setSaving] = useState(false);
-
-  const save = async () => {
-    setSaving(true);
-    try {
-      const res = await api.put("/auth/profile", {
-        name,
-        morningMotivation: morning,
-      });
-      updateUser(res.data.user);
-      setSettingsOpen(false);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <aside className="hidden md:flex md:flex-col w-64 fixed inset-y-0 left-0 z-30 glass border-r">
@@ -108,50 +90,10 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <Modal
+      <SettingsModal
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
-        title="Settings"
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="label">Display name</label>
-            <input
-              className="input"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-
-          <label className="flex items-start gap-3 p-3 rounded-xl glass cursor-pointer hover:bg-[var(--surface-hover)]">
-            <input
-              type="checkbox"
-              checked={morning}
-              onChange={(e) => setMorning(e.target.checked)}
-              className="mt-1 accent-brand-600"
-            />
-            <div>
-              <div className="text-sm font-medium">Morning motivation</div>
-              <div className="text-xs text-faint">
-                Show a short personalised AI message every morning on the
-                dashboard.
-              </div>
-            </div>
-          </label>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              className="btn-secondary"
-              onClick={() => setSettingsOpen(false)}
-            >
-              Cancel
-            </button>
-            <button className="btn-primary" onClick={save} disabled={saving}>
-              {saving ? "Saving..." : "Save"}
-            </button>
-          </div>
-        </div>
-      </Modal>
+      />
     </aside>
   );
 }

@@ -7,7 +7,6 @@ import {
   Brain,
   BarChart3,
   LogOut,
-  Settings,
   Sun,
   Moon,
 } from "lucide-react";
@@ -40,20 +39,11 @@ export default function MobileNav() {
             {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
           </button>
 
-          {/* Settings — tapping the avatar or the gear opens settings */}
-          <button
-            onClick={() => setSettingsOpen(true)}
-            className="p-2 rounded-lg text-soft hover:bg-[var(--surface-hover)]"
-            aria-label="Settings"
-          >
-            <Settings size={16} />
-          </button>
-
-          {/* Avatar — also opens settings so users know it's interactive */}
+          {/* Avatar — tap to open Settings */}
           <button
             onClick={() => setSettingsOpen(true)}
             className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white text-sm font-semibold flex items-center justify-center ring-2 ring-transparent hover:ring-brand-400 transition"
-            aria-label="Open settings"
+            aria-label="Settings"
             title="Settings"
           >
             {user?.avatar || user?.name?.charAt(0).toUpperCase() || "U"}

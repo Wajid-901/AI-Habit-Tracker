@@ -2,12 +2,13 @@ import { useState } from "react";
 import usePushNotifications from "../hooks/usePushNotifications.js";
 
 export default function NotificationPermission() {
-  const { supported, permission, subscribed, subscribe } = usePushNotifications();
+  const { supported, permission, subscribe } = usePushNotifications();
   const [visible, setVisible] = useState(true);
   const [status, setStatus] = useState("idle");
   const [busy, setBusy] = useState(false);
 
-  if (!supported || (permission === "granted" && subscribed) || !visible) return null;
+  // Hide if push is unsupported, permission already granted, or dismissed
+  if (!supported || permission === "granted" || !visible) return null;
 
   const handleEnable = async () => {
     setBusy(true);
@@ -18,11 +19,9 @@ export default function NotificationPermission() {
     else if (res.reason === "no-vapid-key") setStatus("unavailable");
     else if (res.reason === "unsupported") setStatus("unsupported");
     else if (res.reason === "sw-timeout") setStatus("sw-timeout");
-    else if (res.reason === "vapid-mismatch") setStatus("vapid-mismatch");
     else setStatus("error");
   };
 
-  // Position: above bottom nav on mobile (bottom-20), normal on desktop (bottom-6)
   return (
     <div className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 max-w-xs rounded-xl border border-[var(--divider)] bg-[var(--surface-strong)] backdrop-blur-xl p-4 shadow-xl">
       <p className="text-sm font-semibold">Stay on track 🔔</p>
@@ -31,28 +30,19 @@ export default function NotificationPermission() {
       </p>
 
       {status === "denied" && (
-        <p className="mt-2 text-xs text-rose-500">Notifications blocked — enable them in browser settings.</p>
+        <p className="mt-2 text-xs text-rose-500">Blocked — enable notifications in your browser settings.</p>
       )}
       {status === "unsupported" && (
         <p className="mt-2 text-xs text-amber-500">Not supported in this browser.</p>
       )}
       {status === "unavailable" && (
-        <p className="mt-2 text-xs text-amber-500">Not available right now. Try again later.</p>
+        <p className="mt-2 text-xs text-amber-500">Not available right now — try again later.</p>
       )}
       {status === "sw-timeout" && (
-        <p className="mt-2 text-xs text-amber-500">Service worker unavailable — refresh and retry.</p>
-      )}
-      {status === "vapid-mismatch" && (
-        <p className="mt-2 text-xs text-amber-500">
-          Outdated subscription.{" "}
-          <button className="underline font-medium" onClick={() => window.location.reload()}>
-            Refresh page
-          </button>{" "}
-          then try again.
-        </p>
+        <p className="mt-2 text-xs text-amber-500">Service unavailable — refresh and retry.</p>
       )}
       {status === "error" && (
-        <p className="mt-2 text-xs text-amber-500">Something went wrong. Please try again.</p>
+        <p className="mt-2 text-xs text-amber-500">Something went wrong — please try again.</p>
       )}
 
       <div className="mt-3 flex items-center justify-end gap-2">

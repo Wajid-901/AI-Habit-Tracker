@@ -21,10 +21,32 @@ function urlBase64ToUint8Array(base64String) {
 
 // Race a promise against a ms timeout
 function withTimeout(promise, ms) {
-  const timer = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error("timeout")), ms)
-  );
-  return Promise.race([promise, timer]);
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), ms)),
+  ]);
+}
+
+// Try to create a fresh push subscription with the current VAPID key
+async function createSubscription(reg) {
+  if (!VAPID_PUBLIC_KEY) throw new Error("no-vapid-key");
+  try {
+    return await withTimeout(
+      reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) }),
+      10_000
+    );
+  } catch (err) {
+    // Stale key: clear old sub and retry once
+    if (err?.name === "DOMException" || err instanceof DOMException) {
+      const stale = await reg.pushManager.getSubscription();
+      if (stale) await stale.unsubscribe();
+      return await withTimeout(
+        reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) }),
+        10_000
+      );
+    }
+    throw err;
+  }
 }
 
 export default function usePushNotifications() {
@@ -33,17 +55,30 @@ export default function usePushNotifications() {
   );
   const [subscribed, setSubscribed] = useState(false);
 
-  // On mount: if already granted, check whether a subscription exists
+  // On mount: if permission already granted, ensure a valid subscription exists.
+  // If the stored subscription is stale (VAPID mismatch), silently replace it.
   useEffect(() => {
     if (!supported || typeof Notification === "undefined") return;
     if (Notification.permission !== "granted") return;
+    if (!VAPID_PUBLIC_KEY) return;
+
     let cancelled = false;
     (async () => {
       try {
         const reg = await withTimeout(navigator.serviceWorker.ready, 10_000);
-        const sub = await reg.pushManager.getSubscription();
-        if (!cancelled) setSubscribed(!!sub);
-      } catch { /* leaves subscribed=false so the card stays visible */ }
+        let sub = await reg.pushManager.getSubscription();
+
+        if (!sub) {
+          // Permission granted but no sub — silently re-subscribe
+          sub = await createSubscription(reg);
+          await api.post("/notifications/subscribe", { endpoint: sub.endpoint, keys: sub.toJSON().keys });
+        }
+
+        if (!cancelled) setSubscribed(true);
+      } catch {
+        // Leave subscribed=false — card will offer to retry
+        if (!cancelled) setSubscribed(false);
+      }
     })();
     return () => { cancelled = true; };
   }, [permission]);
@@ -67,27 +102,11 @@ export default function usePushNotifications() {
       let sub = await reg.pushManager.getSubscription();
       if (!sub) {
         try {
-          sub = await withTimeout(
-            reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) }),
-            10_000
-          );
+          sub = await createSubscription(reg);
         } catch (err) {
           if (err?.message === "timeout") return { ok: false, reason: "sw-timeout" };
-          // Stale VAPID key: unsubscribe and retry once
-          if (err?.name === "DOMException" || err instanceof DOMException) {
-            try {
-              const stale = await reg.pushManager.getSubscription();
-              if (stale) await stale.unsubscribe();
-              sub = await withTimeout(
-                reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) }),
-                10_000
-              );
-            } catch {
-              return { ok: false, reason: "vapid-mismatch" };
-            }
-          } else {
-            return { ok: false, reason: "network", error: err };
-          }
+          if (err?.message === "no-vapid-key") return { ok: false, reason: "no-vapid-key" };
+          return { ok: false, reason: "network", error: err };
         }
       }
 

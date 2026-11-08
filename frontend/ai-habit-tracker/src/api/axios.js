@@ -18,7 +18,7 @@ import axios from "axios";
         if (path !== "/login" && path !== "/register" && path !== "/") {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
-          window.location.href = "/login";
+          window.location.href = "/"; // go to landing, not login
         }
       }
       return Promise.reject(err);

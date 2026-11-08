@@ -52,6 +52,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
+    window.location.href = "/"; // always land on the homepage after logout
   };
 
   const updateUser = (u) => {

@@ -1,28 +1,19 @@
 import { useState } from "react";
 import usePushNotifications from "../hooks/usePushNotifications.js";
 
-// Small, fixed-position card shown to logged-in users to enable push.
-// Hides itself on success, when already granted AND subscribed, or when unsupported.
-// Stays visible if permission was granted but the subscription save failed (recovery).
 export default function NotificationPermission() {
   const { supported, permission, subscribed, subscribe } = usePushNotifications();
   const [visible, setVisible] = useState(true);
-  const [status, setStatus] = useState("idle"); // idle | denied | unsupported | unavailable | error
+  const [status, setStatus] = useState("idle");
   const [busy, setBusy] = useState(false);
 
-  // Nothing to show if push is unsupported, or already granted AND subscribed.
   if (!supported || (permission === "granted" && subscribed) || !visible) return null;
 
   const handleEnable = async () => {
     setBusy(true);
     const res = await subscribe();
     setBusy(false);
-
-    if (res.ok) {
-      setVisible(false);
-      return;
-    }
-
+    if (res.ok) { setVisible(false); return; }
     if (res.reason === "denied") setStatus("denied");
     else if (res.reason === "no-vapid-key") setStatus("unavailable");
     else if (res.reason === "unsupported") setStatus("unsupported");
@@ -31,51 +22,44 @@ export default function NotificationPermission() {
     else setStatus("error");
   };
 
+  // Position: above bottom nav on mobile (bottom-20), normal on desktop (bottom-6)
   return (
-    <div className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-50 max-w-xs rounded-xl border border-slate-200 bg-white p-4 shadow-lg dark:border-slate-700 dark:bg-slate-800">
-      <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-        Stay on track 🔔
-      </p>
-      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-        Get a friendly nudge for unfinished habits — even when the tab is closed.
+    <div className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 max-w-xs rounded-xl border border-[var(--divider)] bg-[var(--surface-strong)] backdrop-blur-xl p-4 shadow-xl">
+      <p className="text-sm font-semibold">Stay on track 🔔</p>
+      <p className="mt-1 text-xs text-soft">
+        Get a nudge for unfinished habits — even when the tab is closed.
       </p>
 
       {status === "denied" && (
-        <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">
-          Notifications blocked — enable them in your browser settings.
-        </p>
+        <p className="mt-2 text-xs text-rose-500">Notifications blocked — enable them in browser settings.</p>
       )}
       {status === "unsupported" && (
-        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-          Notifications aren&apos;t supported in this browser.
-        </p>
+        <p className="mt-2 text-xs text-amber-500">Not supported in this browser.</p>
       )}
       {status === "unavailable" && (
-        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-          Notifications aren&apos;t available right now. Please try again later.
+        <p className="mt-2 text-xs text-amber-500">Not available right now. Try again later.</p>
+      )}
+      {status === "sw-timeout" && (
+        <p className="mt-2 text-xs text-amber-500">Service worker unavailable — refresh and retry.</p>
+      )}
+      {status === "vapid-mismatch" && (
+        <p className="mt-2 text-xs text-amber-500">
+          Outdated subscription.{" "}
+          <button className="underline font-medium" onClick={() => window.location.reload()}>
+            Refresh page
+          </button>{" "}
+          then try again.
         </p>
       )}
       {status === "error" && (
-        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-          Something went wrong. Please try again.
-        </p>
-      )}
-      {status === "sw-timeout" && (
-        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-          Could not reach the notification service. Please refresh and try again.
-        </p>
-      )}
-      {status === "vapid-mismatch" && (
-        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-          Your previous subscription is outdated. Please refresh the page and try again.
-        </p>
+        <p className="mt-2 text-xs text-amber-500">Something went wrong. Please try again.</p>
       )}
 
       <div className="mt-3 flex items-center justify-end gap-2">
         <button
           type="button"
           onClick={() => setVisible(false)}
-          className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+          className="rounded-lg px-3 py-1.5 text-xs font-medium text-soft hover:text-[var(--text)]"
         >
           Not now
         </button>
@@ -83,7 +67,7 @@ export default function NotificationPermission() {
           type="button"
           onClick={handleEnable}
           disabled={busy}
-          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+          className="rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 px-3 py-1.5 text-xs font-semibold text-white hover:brightness-110 disabled:opacity-60"
         >
           {busy ? "Enabling…" : "Enable Notifications"}
         </button>

@@ -12,11 +12,7 @@ const SAMPLES = [
 export default function AIChat() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content:
-        "Hi — ask me anything about your habit data. Try one of the examples below.",
-    },
+    { role: "assistant", content: "Hi — ask me anything about your habit data. Try one of the examples below." },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,18 +30,9 @@ export default function AIChat() {
     setLoading(true);
     try {
       const res = await api.post("/ai/chat", { question: q });
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: res.data.content },
-      ]);
+      setMessages((m) => [...m, { role: "assistant", content: res.data.content }]);
     } catch {
-      setMessages((m) => [
-        ...m,
-        {
-          role: "assistant",
-          content: "Sorry, I couldn't answer that right now.",
-        },
-      ]);
+      setMessages((m) => [...m, { role: "assistant", content: "Sorry, I couldn't answer that right now." }]);
     } finally {
       setLoading(false);
     }
@@ -62,8 +49,17 @@ export default function AIChat() {
       </button>
 
       {open && (
-        <div className="fixed bottom-36 md:bottom-24 right-6 z-40 w-[min(92vw,380px)] h-[min(70vh,520px)] glass-strong rounded-2xl flex flex-col animate-slide-up shadow-2xl overflow-hidden">
-          <div className="px-4 py-3 border-b divider flex items-center gap-2">
+        <div
+          className="fixed bottom-36 md:bottom-24 right-6 z-40 w-[min(92vw,380px)] h-[min(70vh,520px)] rounded-2xl flex flex-col animate-slide-up shadow-2xl overflow-hidden"
+          style={{
+            // Solid opaque surface so it never looks transparent, in both light and dark mode
+            background: "var(--bg-base)",
+            border: "1px solid var(--divider)",
+            boxShadow: "var(--shadow)",
+          }}
+        >
+          {/* Header */}
+          <div className="px-4 py-3 border-b divider flex items-center gap-2" style={{ background: "var(--surface-strong)" }}>
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center shadow-md shadow-brand-500/30">
               <Sparkles size={14} />
             </div>
@@ -73,23 +69,17 @@ export default function AIChat() {
             </div>
           </div>
 
-          <div
-            ref={scrollRef}
-            className="flex-1 overflow-y-auto px-4 py-3 space-y-3"
-          >
+          {/* Messages */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
             {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`flex ${
-                  m.role === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
+              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                     m.role === "user"
                       ? "bg-gradient-to-br from-brand-500 to-brand-700 text-white rounded-br-md shadow-md shadow-brand-500/30"
-                      : "glass rounded-bl-md"
+                      : "rounded-bl-md"
                   }`}
+                  style={m.role === "assistant" ? { background: "var(--surface-strong)", border: "1px solid var(--divider)" } : {}}
                 >
                   {m.role === "user" ? m.content : <Markdown>{m.content}</Markdown>}
                 </div>
@@ -97,7 +87,8 @@ export default function AIChat() {
             ))}
             {loading && (
               <div className="flex justify-start">
-                <div className="glass rounded-2xl rounded-bl-md px-3.5 py-2.5 text-sm text-soft flex items-center gap-2">
+                <div className="rounded-2xl rounded-bl-md px-3.5 py-2.5 text-sm text-soft flex items-center gap-2"
+                     style={{ background: "var(--surface-strong)", border: "1px solid var(--divider)" }}>
                   <RefreshCw size={12} className="animate-spin" />
                   Thinking...
                 </div>
@@ -109,7 +100,8 @@ export default function AIChat() {
                   <button
                     key={i}
                     onClick={() => send(s)}
-                    className="block w-full text-left text-xs rounded-lg glass hover:bg-[var(--surface-hover)] px-3 py-2 text-soft"
+                    className="block w-full text-left text-xs rounded-lg hover:bg-[var(--surface-hover)] px-3 py-2 text-soft"
+                    style={{ background: "var(--surface-strong)", border: "1px solid var(--divider)" }}
                   >
                     {s}
                   </button>
@@ -118,12 +110,11 @@ export default function AIChat() {
             )}
           </div>
 
+          {/* Input */}
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              send();
-            }}
+            onSubmit={(e) => { e.preventDefault(); send(); }}
             className="p-3 border-t divider flex gap-2"
+            style={{ background: "var(--surface-strong)" }}
           >
             <input
               className="input"
@@ -131,11 +122,7 @@ export default function AIChat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
             />
-            <button
-              type="submit"
-              className="btn-primary px-3"
-              disabled={loading}
-            >
+            <button type="submit" className="btn-primary px-3" disabled={loading}>
               <Send size={16} />
             </button>
           </form>

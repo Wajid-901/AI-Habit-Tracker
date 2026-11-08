@@ -7,9 +7,19 @@ import { registerSW } from "virtual:pwa-register";
 import "./index.css";
 import App from "./App.jsx";
 
-// Register the service worker. updateSW() can be called later to prompt
-// the user to reload when a new version is available.
+// Register the service worker with auto-update.
 registerSW({ immediate: true });
+
+// When the new SW activates and claims this client, it sends SW_UPDATED.
+// Reloading here ensures the app picks up freshly precached assets
+// without the user needing to delete and reinstall the PWA.
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data?.type === "SW_UPDATED") {
+      window.location.reload();
+    }
+  });
+}
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

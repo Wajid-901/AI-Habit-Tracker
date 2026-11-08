@@ -2,9 +2,22 @@
 import { precacheAndRoute } from "workbox-precaching";
 import { clientsClaim } from "workbox-core";
 
-// autoUpdate: take over from the previous SW immediately.
+// Take over from the previous SW immediately so new assets are served right away.
 self.skipWaiting();
 clientsClaim();
+
+// After claiming all clients, tell each open tab/window to reload so it picks
+// up the freshly precached assets. This is what lets the installed PWA update
+// itself without the user needing to delete and reinstall.
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    self.clients.matchAll({ type: "window" }).then((clients) => {
+      for (const client of clients) {
+        client.postMessage({ type: "SW_UPDATED" });
+      }
+    })
+  );
+});
 
 // Precache the build assets injected by vite-plugin-pwa.
 precacheAndRoute(self.__WB_MANIFEST);
